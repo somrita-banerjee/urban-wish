@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginDto, RegisterDto } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
@@ -58,10 +59,11 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(body.password, 10);
     const newUser = await this.prismaService.user.create({
       data: {
-        email: body.email,
+        id: uuidv4(),
         name: body.name,
+        email: body.email,
         password: hashedPassword,
-        phone: body.phone,
+        phone: parseInt(body.phone, 10),
         address: body.address,
         type: body.type,
       },
