@@ -1,5 +1,4 @@
-import {
-  ConflictException,
+import {  ConflictException,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -38,13 +37,16 @@ export class AuthService {
     });
   }
 
-  private generateJwtToken(userId: string, extras: Record<string, any>) {
+  private async generateJwtToken(userId: string, extras: Record<string, any>) {
     const payload = {
       sub: userId,
       ...extras,
     };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '7d',
+      }),
     };
   }
 
