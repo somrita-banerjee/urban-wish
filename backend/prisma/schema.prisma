@@ -64,6 +64,7 @@ model products {
   category                             String?       @db.Uuid
   created_at                           DateTime?     @default(now()) @db.Timestamp(6)
   seller_id                            String        @db.Uuid
+  image_url                            String?       @db.VarChar
   cart_items                           cart_items[]
   order_items                          order_items[]
   category_products_categoryTocategory category?     @relation("products_categoryTocategory", fields: [category], references: [id], onDelete: NoAction, onUpdate: NoAction)
