@@ -8,6 +8,8 @@ import { LoginDto, RegisterDto } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import { user_type } from '@prisma/client';
+import { JwtUser } from 'src/decorator/userFromAuth.decorator';
 
 @Injectable()
 export class AuthService {
@@ -32,14 +34,19 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.generateJwtToken(findUser.id, {
+    return this.generateJwtToken(findUser.id, findUser.type, {
       email: findUser.email,
     });
   }
 
-  private async generateJwtToken(userId: string, extras: Record<string, any>) {
-    const payload = {
+  private async generateJwtToken(
+    userId: string,
+    userType: user_type,
+    extras: Record<string, any>,
+  ) {
+    const payload: JwtUser = {
       sub: userId,
+      user_type: userType,
       ...extras,
     };
     return {
@@ -71,7 +78,7 @@ export class AuthService {
       },
     });
 
-    return this.generateJwtToken(newUser.id, {
+    return this.generateJwtToken(newUser.id, newUser.type, {
       email: newUser.email,
     });
   }
