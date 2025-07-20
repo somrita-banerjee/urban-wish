@@ -1,5 +1,4 @@
-import {
-  Body,
+import {  Body,
   Controller,
   Get,
   Param,
@@ -31,8 +30,18 @@ export class OrderController {
     return this.orderService.getCartItems(user);
   }
 
-  @Post('order')
+  @Post('')
   create(@UserFromAuth() user: JwtUser) {
     return this.orderService.createOrder(user);
+  }
+
+  @Get('')
+  findAllOrders(@UserFromAuth() user: JwtUser) {
+    return this.orderService.findAllOrders(user);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id:string, @UserFromAuth() user: JwtUser) {
+    return this.orderService.findOneOrder(id, user);
   }
 }
