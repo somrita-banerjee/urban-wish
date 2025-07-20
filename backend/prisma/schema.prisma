@@ -7,23 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model cart {
-  id         String       @id @db.Uuid
-  user_id    String       @unique @db.Uuid
-  user       user         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  cart_items cart_items[]
-
-  @@index([user_id], map: "idx_cart_user")
-}
-
 model cart_items {
-  cart_id    String   @db.Uuid
+  user_id    String   @db.Uuid
   product_id String   @db.Uuid
   quantity   Int?     @default(1)
-  cart       cart     @relation(fields: [cart_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user       user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([cart_id, product_id])
+  @@id([user_id, product_id])
+  @@index([user_id], map: "idx_cart_items_user")
 }
 
 model category {
@@ -74,16 +66,16 @@ model products {
 }
 
 model user {
-  id       String     @id @db.Uuid
-  name     String     @db.VarChar
-  email    String     @unique @db.VarChar
-  password String     @db.VarChar
-  phone    Int?
-  address  String?    @db.VarChar
-  type     user_type
-  cart     cart?
-  order    order[]
-  products products[]
+  id         String       @id @db.Uuid
+  name       String       @db.VarChar
+  email      String       @unique @db.VarChar
+  password   String       @db.VarChar
+  phone      Int?
+  address    String?      @db.VarChar
+  type       user_type
+  cart_items cart_items[]
+  order      order[]
+  products   products[]
 
   @@index([email], map: "idx_user_email")
 }
