@@ -1,5 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';import { PrismaService } from 'src/prisma/prisma.service';
 import { user_type } from '@prisma/client';
 import { JwtUser } from 'src/decorator/userFromAuth.decorator';
 import { CartDto } from './order.dto';
@@ -42,14 +41,17 @@ export class OrderService {
     }
   }
 
-  async getCartItems(user: JwtUser): Promise<CartDto> {
+  async getCartItems(user: JwtUser) {
     const items = await this.prismaService.cart_items.findMany({
       where: { user_id: user.sub },
+      include: {
+        products: true,
+      },
     });
 
     return {
       items: items.map((item) => ({
-        product: item.product_id,
+        product: item.products,
         quantity: item.quantity ?? 0,
       })),
     };

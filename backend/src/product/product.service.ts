@@ -61,7 +61,11 @@ export class ProductService {
 
   async findAll() {
     try {
-      const products = await this.prismaService.products.findMany();
+      const products = await this.prismaService.products.findMany({
+        include: {
+          category_products_categoryTocategory: true,
+        },
+      });
       return products;
     } catch (error) {
       throw new HttpException(
@@ -82,6 +86,9 @@ export class ProductService {
     try {
       const product = await this.prismaService.products.findUnique({
         where: { id },
+        include: {
+          category_products_categoryTocategory: true,
+        },
       });
       if (!product) {
         throw new NotFoundException(`Product with id ${id} not found`);
@@ -112,7 +119,7 @@ export class ProductService {
       const product = await this.prismaService.products.findUnique({
         where: { id },
       });
-      
+
       if (!product) {
         throw new NotFoundException(`Product with id ${id} not found`);
       }
@@ -134,7 +141,9 @@ export class ProductService {
         description: updateProductDto.description,
         category: updateProductDto.category,
         image_url: updateProductDto.imageUrl,
-        price: updateProductDto.price ? parseFloat(updateProductDto.price) : undefined,
+        price: updateProductDto.price
+          ? parseFloat(updateProductDto.price)
+          : undefined,
       };
 
       return this.prismaService.products.update({
