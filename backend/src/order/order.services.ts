@@ -17,14 +17,26 @@ export class OrderService {
       await this.prismaService.cart_items.deleteMany({
         where: { user_id: user.sub },
       });
+
+      const uniqueItemsMap = new Map();
+      for (const items of dto.items) {
+        if (!uniqueItemsMap.has(items.product)) {
+          uniqueItemsMap.set(items.product, items);
+        }
+      }
+
+      const uniqueItems = Array.from(uniqueItemsMap.values());
+
       const cartItems = await this.prismaService.cart_items.createMany({
-        data: dto.items.map((item) => ({
+        data: uniqueItems.map((item) => ({
           user_id: user.sub,
           product_id: item.product,
           quantity: item.quantity,
         })),
+        skipDuplicates: true,
       });
 
+      
       return `Your cart has ${cartItems.count} products`;
     } catch (error) {
       throw new HttpException(
