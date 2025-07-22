@@ -1,5 +1,4 @@
-import {
-  ConflictException,
+import {  ConflictException,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -35,9 +34,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.generateJwtToken(findUser.id, findUser.type, {
+    const token = await this.generateJwtToken(findUser.id, findUser.type, {
       email: findUser.email,
     });
+    
+    return {
+      type: findUser?.type,
+      ...token,
+    };
   }
 
   private async generateJwtToken(
@@ -79,9 +83,14 @@ export class AuthService {
       },
     });
 
-    return this.generateJwtToken(newUser.id, newUser.type, {
+    const token = await this.generateJwtToken(newUser.id, newUser.type, {
       email: newUser.email,
     });
+
+    return {
+      type: body.type,
+      ...token
+    }
   }
 
   async getMe(user: JwtUser) {
