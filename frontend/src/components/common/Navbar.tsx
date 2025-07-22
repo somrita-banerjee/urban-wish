@@ -1,5 +1,5 @@
 // components/common/Navbar.tsx
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, type To } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { LoginModal } from "@/components/LoginModal";
@@ -12,16 +12,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { clearLocalStorage, getToken, getUserType } from "@/lib/storage";
 
+const navMap: {
+  [key: string]: { label: string; to: string }[];
+} = {
+  buyer: [{ label: "Cart", to: "/cart" }],
+  seller: [{ label: "Create Product", to: "/product" }],
+};
+
 const Navbar = () => {
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userType, setUserType] = useState("");
+  const [userType, setUserType] = useState("buyer");
 
   useEffect(() => {
     const token = getToken();
-    if (!token) setIsLoggedIn(true);
+    if (token) setIsLoggedIn(true);
     const type = getUserType();
+    if(token && type)
     setUserType(type ?? "");
   }, []);
 
@@ -34,6 +42,7 @@ const Navbar = () => {
     clearLocalStorage();
     setIsLoggedIn(false);
   };
+
   return (
     <>
       <nav className="flex items-center justify-between px-6 py-4 shadow-sm bg-white border-b">
@@ -41,9 +50,11 @@ const Navbar = () => {
           🛒 Urban Wish
         </Link>
         <div className="space-x-4 hidden sm:flex">
-          <Link to="/cart">
-            <Button variant="ghost">Cart</Button>
-          </Link>
+          {navMap[userType]?.map((item: { to: To; label: string }) => (
+            <Link to={item.to}>
+              <Button variant="ghost">{item.label}</Button>
+            </Link>
+          ))}
           {isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
