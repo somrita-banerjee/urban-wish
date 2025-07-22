@@ -1,4 +1,4 @@
-import { axiosPublic } from "@/lib/axios"
+import { axiosAuth, axiosPublic } from "@/lib/axios"
 
 export const login = async (email: string, password: string) => {
     const response = await axiosPublic.post('/auth/login', {
@@ -28,6 +28,6 @@ export const register = async (
 };
 
 export const getMe = async () => {
-    const response = await axiosPublic.get('/auth/me');
+  const response = await axiosAuth.get('/auth/me');
     return response.data;
 }

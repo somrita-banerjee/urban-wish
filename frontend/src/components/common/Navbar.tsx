@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { clearLocalStorage, getToken, getUserType } from "@/lib/storage";
+import { Account } from "@/pages/Account";
 
 const navMap: {
   [key: string]: { label: string; to: string }[];
@@ -62,7 +63,7 @@ const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => navigate("/me")}>
-                  Account
+                  <Account />
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogOut}>

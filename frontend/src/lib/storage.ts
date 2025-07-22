@@ -11,3 +11,5 @@ export const storeAfterLogin = (token: string, type: string) => {
   setToken(token);
   setUserType(type);
 };
+
+
