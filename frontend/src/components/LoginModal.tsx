@@ -8,14 +8,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
-import { login } from "./auth.api";
+import { login, register } from "../features/auth/auth.api";
+import { setToken } from "@/lib/storage";
 
 interface LoginModalProps {
   open: boolean;
+  onLogin: () => void;
   onClose: () => void;
 }
 
-export const LoginModal = ({ open, onClose }: LoginModalProps) => {
+export const LoginModal = ({ open, onClose, onLogin }: LoginModalProps) => {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPasssword] = useState("");
   const [registerName, setRegisterName] = useState("");
@@ -26,9 +28,39 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   const [type, setType] = useState("");
 
   const handleLogin = async () => {
-    console.log("Login:", { loginEmail, loginPassword });
-    const resp = await login(loginEmail, loginPassword);
-    console.log(resp);
+    try {
+      console.log("Login:", { loginEmail, loginPassword });
+      const resp = await login(loginEmail, loginPassword);
+      console.log("Login Successful", resp);
+      setToken(resp.access_token)
+      onLogin();
+    } catch (error) {
+      console.error("Login Failed", error);
+    }
+  };
+
+  const handleRegister = async () => {
+    try {
+      console.log("Register:", {
+        registerName,
+        registerEmail,
+        registerPhone,
+        registerAddress,
+        registerPassword,
+        type,
+      });
+      const res = await register(
+        registerName,
+        registerEmail,
+        registerPhone,
+        registerAddress,
+        registerPassword,
+        type
+      );
+      console.log("Registration Successful", res);
+    } catch (error) {
+      console.error("Registration Failed", error);
+    }
   };
 
   return (
@@ -107,6 +139,9 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
               onChange={(e) => setType(e.target.value)}
               className="mb-4"
             />
+            <Button onClick={handleRegister} className="w-full">
+              Register
+            </Button>
           </TabsContent>
         </Tabs>
       </DialogContent>

@@ -8,16 +8,23 @@ export const login = async (email: string, password: string) => {
     return response.data;
 };
 
-export const register = async (name: string, email: string, address: string, phone: string, password: string, type: string) => {
-    const response = await axiosPublic.post('/auth/register', {
-        name,
-        email,
-        address,
-        phone,
-        password,
-        type,
-    });
-    return response.data;
+export const register = async (
+  name: string,
+  email: string,
+  phone: string,
+  address: string,
+  password: string,
+  type: string
+) => {
+  const response = await axiosPublic.post("/auth/register", {
+    name,
+    email,
+    address,
+    phone,
+    password,
+    type,
+  });
+  return response.data;
 };
 
 export const getMe = async () => {
