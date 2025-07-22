@@ -10,16 +10,19 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { clearToken, getToken } from "@/lib/storage";
+import { clearLocalStorage, getToken, getUserType } from "@/lib/storage";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userType, setUserType] = useState("");
 
   useEffect(() => {
     const token = getToken();
     if (!token) setIsLoggedIn(true);
+    const type = getUserType();
+    setUserType(type ?? "");
   }, []);
 
   const onLogin = () => {
@@ -28,7 +31,7 @@ const Navbar = () => {
   };
 
   const handleLogOut = () => {
-    clearToken();
+    clearLocalStorage();
     setIsLoggedIn(false);
   };
   return (

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { login, register } from "../features/auth/auth.api";
-import { setToken } from "@/lib/storage";
+import { storeAfterLogin } from "@/lib/storage";
 
 interface LoginModalProps {
   open: boolean;
@@ -32,7 +32,7 @@ export const LoginModal = ({ open, onClose, onLogin }: LoginModalProps) => {
       console.log("Login:", { loginEmail, loginPassword });
       const resp = await login(loginEmail, loginPassword);
       console.log("Login Successful", resp);
-      setToken(resp.access_token)
+      storeAfterLogin(resp.access_token, resp.type);
       onLogin();
     } catch (error) {
       console.error("Login Failed", error);
@@ -58,6 +58,8 @@ export const LoginModal = ({ open, onClose, onLogin }: LoginModalProps) => {
         type
       );
       console.log("Registration Successful", res);
+      storeAfterLogin(res.access_token, res.type);
+      onLogin();
     } catch (error) {
       console.error("Registration Failed", error);
     }

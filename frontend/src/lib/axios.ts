@@ -1,8 +1,9 @@
 import axios from "axios";
+import { getToken } from "./storage";
 
 const BASE_URL = 'http://localhost:3000';
 
-const authToken = localStorage.getItem('token')
+const authToken = getToken()
 
 export const axiosAuth = axios.create({
     baseURL: BASE_URL,
