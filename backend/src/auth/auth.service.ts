@@ -1,4 +1,5 @@
-import {  ConflictException,
+import {
+  ConflictException,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -81,5 +82,23 @@ export class AuthService {
     return this.generateJwtToken(newUser.id, newUser.type, {
       email: newUser.email,
     });
+  }
+
+  async getMe(user: JwtUser) {
+    const foundUser = await this.prismaService.user.findUnique({
+      where: { id: user.sub },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        address: true,
+        phone: true,
+        type: true,
+      },
+    });
+    if (!foundUser) {
+      throw new UnauthorizedException('User not Found');
+    }
+    return foundUser;
   }
 }
