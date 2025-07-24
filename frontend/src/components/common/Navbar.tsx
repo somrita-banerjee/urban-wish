@@ -29,8 +29,7 @@ const Navbar = () => {
     const token = getToken();
     if (token) setIsLoggedIn(true);
     const type = getUserType();
-    if(token && type)
-    setUserType(type ?? "");
+    if (token && type) setUserType(type ?? "");
   }, []);
 
   const onLogin = () => {
@@ -51,7 +50,7 @@ const Navbar = () => {
         </Link>
         <div className="space-x-4 hidden sm:flex">
           {navMap[userType]?.map((item: { to: To; label: string }) => (
-            <Link to={item.to}>
+            <Link to={item.to} key={item.to as string}>
               <Button variant="ghost">{item.label}</Button>
             </Link>
           ))}
