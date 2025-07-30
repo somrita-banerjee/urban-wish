@@ -32,6 +32,7 @@ model order {
   user_id     String        @db.Uuid
   price       Int
   created_at  DateTime?     @default(now()) @db.Timestamp(6)
+  status      order_status? @default(payment_pending)
   user        user          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   order_items order_items[]
 
@@ -84,4 +85,11 @@ enum user_type {
   buyer
   seller
   admin
+}
+
+enum order_status {
+  payment_pending
+  order_placed
+  payment_failed
+  order_cancelled
 }

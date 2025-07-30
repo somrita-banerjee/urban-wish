@@ -27,7 +27,7 @@ export const Order = () => {
 
   useEffect(() => {
     if (id) fetchOrder(id);
-  });
+  }, [id]);
 
   const fetchOrder = async (id: string) => {
     const res = await getOrder(id);
