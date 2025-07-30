@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCart, addtoCart } from "@/features/cart/cart.api"; // or your correct import path
@@ -26,6 +27,12 @@ interface CartItem {
 
 interface Cart {
   items: CartItem[];
+}
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
 }
 
 export const Cart = () => {
@@ -110,11 +117,32 @@ export const Cart = () => {
   };
 
   const handlePlaceOrder = async () => {
+    if (!window.Razorpay) {
+      alert("Razorpay SDK not loaded. Please try again later.");
+      return;
+    }
     if (!cart || cart.items.length === 0) return;
     setPlacingOrder(true);
     try {
       const res = await placeOrder();
-      navigate(`/order/${res.order_id}`)
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // from .env
+        amount: res.total_price,
+        currency: "INR",
+        name: "Urban Wish",
+        description: "Test Transaction",
+        order_id: res.razorpay_order_id,
+        handler: function (response: any) {
+          console.log(response);
+          alert(
+            `Payment Successful!\nPayment ID: ${response.razorpay_payment_id}`
+          );
+          // optional: verify payment via backend
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
       console.log("Failed to fetch orderd", error);
     } finally {
