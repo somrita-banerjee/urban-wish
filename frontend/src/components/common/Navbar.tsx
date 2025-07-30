@@ -63,6 +63,11 @@ const Navbar = () => {
                 <DropdownMenuItem onClick={() => navigate("/me")}>
                   My Account
                 </DropdownMenuItem>
+                {userType === "buyer" && (
+                  <DropdownMenuItem onClick={() => navigate("/order")}>
+                    Orders
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogOut}>
                   Logout

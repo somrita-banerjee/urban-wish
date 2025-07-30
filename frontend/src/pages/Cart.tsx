@@ -9,6 +9,7 @@ import {
   Plus,
   X,
 } from "lucide-react";
+import { placeOrder } from "@/features/orders/orders.api";
 
 interface Product {
   id: string;
@@ -30,6 +31,7 @@ interface Cart {
 export const Cart = () => {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [placingOrder, setPlacingOrder] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -107,6 +109,19 @@ export const Cart = () => {
     }
   };
 
+  const handlePlaceOrder = async () => {
+    if (!cart || cart.items.length === 0) return;
+    setPlacingOrder(true);
+    try {
+      const res = await placeOrder();
+      navigate(`/order/${res.order_id}`)
+    } catch (error) {
+      console.log("Failed to fetch orderd", error);
+    } finally {
+      setPlacingOrder(false);
+    }
+  };
+
   const calculateTotal = () => {
     if (!cart) return 0;
     return cart.items.reduce((total, item) => {
@@ -147,7 +162,8 @@ export const Cart = () => {
               <h3 className="font-semibold text-lg">{item.product.name}</h3>
               <p className="text-gray-600 text-sm flex">
                 <IndianRupeeIcon size={15} className="mt-1" />{" "}
-                {parseFloat(item.product.price).toFixed(2)}  <X size={14} className="mt-1 "/> {item.quantity}
+                {parseFloat(item.product.price).toFixed(2)}{" "}
+                <X size={14} className="mt-1 " /> {item.quantity}
               </p>
               <div className="mt-2 flex items-center gap-2">
                 <button
@@ -155,8 +171,7 @@ export const Cart = () => {
                   onClick={() => handleRemove(item.product.id)}
                   disabled={loadingId === item.product.id}
                 >
-                  
-                  <Minus size={15}/>
+                  <Minus size={15} />
                 </button>
                 <span className="px-2">{item.quantity}</span>
                 <button
@@ -164,12 +179,13 @@ export const Cart = () => {
                   onClick={() => handleAdd(item.product.id)}
                   disabled={loadingId === item.product.id}
                 >
-                  <Plus size={15}/>
+                  <Plus size={15} />
                 </button>
               </div>
             </div>
             <div className="font-bold text-lg flex">
-              <IndianRupeeIcon size={20} className="mt-1"/> {(parseFloat(item.product.price) * item.quantity).toFixed(2)}
+              <IndianRupeeIcon size={20} className="mt-1" />{" "}
+              {(parseFloat(item.product.price) * item.quantity).toFixed(2)}
             </div>
           </div>
         ))}
@@ -187,10 +203,14 @@ export const Cart = () => {
           <ArrowBigLeftDashIcon size={26} /> Continue Shopping
         </button>
         <button
-          className="bg-green-600 text-white px-4 py-2 rounded flex"
-          onClick={() => navigate("/orders")}
+          className={`${
+            placingOrder ? "bg-gray-400" : "bg-green-600"
+          } text-white px-4 py-2 rounded flex`}
+          onClick={handlePlaceOrder}
+          disabled={placingOrder}
         >
-          Go to Orders <ArrowBigRightDashIcon size={30} className="px-1" />
+          {placingOrder ? "Placing..." : "Place Order"}{" "}
+          <ArrowBigRightDashIcon size={30} className="px-1" />
         </button>
       </div>
     </div>
