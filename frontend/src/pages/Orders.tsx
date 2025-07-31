@@ -17,6 +17,11 @@ interface OrderItem {
 interface Order {
   id: string;
   createdAt: string;
+  status:
+    | "payment_pending"
+    | "order_placed"
+    | "payment_failed"
+    | "order_cancelled";
   price: number;
   items: OrderItem[];
 }
@@ -70,6 +75,25 @@ export const Orders = () => {
                 Order ID:{" "}
                 <span className="font-mono text-gray-700">{order.id}</span> •{" "}
                 {new Date(order.createdAt).toLocaleString()}
+              </div>
+
+              <div className="mt-1">
+                Status:{" "}
+                <span
+                  className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${
+                    order.status === "payment_pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : order.status === "order_placed"
+                      ? "bg-green-100 text-green-800"
+                      : order.status === "payment_failed"
+                      ? "bg-red-100 text-red-800"
+                      : order.status === "order_cancelled"
+                      ? "bg-gray-100 text-gray-800"
+                      : ""
+                  }`}
+                >
+                  {order.status?.replace("_", " ")}
+                </span>
               </div>
 
               <div className="divide-y divide-gray-200">

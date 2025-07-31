@@ -177,6 +177,7 @@ export class OrderService {
       id: order.id,
       createdAt: order.created_at,
       price: order.price,
+      status: order.status,
       items: order.order_items.map((item) => ({
         product: item.products,
         quantity: item.quantity,
@@ -210,6 +211,7 @@ export class OrderService {
       id: orderId,
       createdAt: order.created_at,
       price: order.price,
+      status: order.status,
       items: order.order_items.map((item) => ({
         product: item.products,
         quantity: item.quantity,

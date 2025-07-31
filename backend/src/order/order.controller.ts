@@ -1,4 +1,5 @@
-import {  Body,
+import {
+  Body,
   Controller,
   Get,
   Param,
@@ -19,7 +20,7 @@ export class OrderController {
   constructor(
     private prismaService: PrismaService,
     private orderService: OrderService,
-  ) { } // Controller methods will be defined here
+  ) {} // Controller methods will be defined here
 
   @Patch('cart')
   update(@Body() cartDto: CartDto, @UserFromAuth() user: JwtUser) {
@@ -56,7 +57,9 @@ export class OrderController {
 
     if (generated_signature !== razorpay_signature) {
       return {
-        success: false, message: 'Signature verification failed',}
+        success: false,
+        message: 'Signature verification failed',
+      };
     } else {
       return { success: true };
     }
