@@ -1,5 +1,4 @@
-import {
-  ForbiddenException,
+import {  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -145,9 +144,9 @@ export class OrderService {
           payment: {
             create: {
               gateway_order_id: razorpayOrder.id,
-              
-            }
-          }
+              details: JSON.parse(JSON.stringify(razorpayOrder))
+            },
+          },
         },
       });
 
@@ -258,8 +257,18 @@ export class OrderService {
       );
     }
 
+    const updatedPayment = await this.prismaService.payment.update({
+      where: {
+        gateway_order_id: razorpayOrderId,
+      },
+      data: {
+        payment_id: razorpayPaymentId,
+        signature: razorpaySignature,
+      },
+    });
+
     await this.prismaService.order.update({
-      where: { id: razorpayOrderId, user_id: user.sub },
+      where: { id: updatedPayment.order_id, user_id: user.sub },
       data: { status: order_status.order_placed },
     });
     return { success: true, message: 'Payment verified successfully' };
