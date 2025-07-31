@@ -15,3 +15,15 @@ export const placeOrder = async () => {
   return res.data;
 };
 
+export const verifyPayment = async (
+  paymentId: string,
+  orderId: string,
+  signature: string
+) => {
+  const res = await axiosAuth.post("/order/payment-verify", {
+    razorpay_payment_id: paymentId,
+    razorpay_order_id: orderId,
+    razorpay_signature: signature
+  });
+  return res.data;
+}

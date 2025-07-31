@@ -10,7 +10,7 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import { placeOrder } from "@/features/orders/orders.api";
+import { placeOrder, verifyPayment } from "@/features/orders/orders.api";
 
 interface Product {
   id: string;
@@ -137,7 +137,11 @@ export const Cart = () => {
           alert(
             `Payment Successful!\nPayment ID: ${response.razorpay_payment_id}`
           );
-          // optional: verify payment via backend
+          verifyPayment(
+            response.razorpay_payment_id,
+            response.razorpay_order_id,
+            response.razorpay_signature
+          );
         },
       };
 
