@@ -12,7 +12,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CartDto } from './order.dto';
 import { JwtUser, UserFromAuth } from 'src/decorator/userFromAuth.decorator';
 import { OrderService } from './order.services';
-import * as crypto from 'crypto';
 
 @UseGuards(AuthGuard)
 @Controller('order')
@@ -47,21 +46,19 @@ export class OrderController {
     return this.orderService.findOneOrder(id, user);
   }
 
-  @Post('verify')
+  @Post('payment-verify')
   async verifyPayment(@Body() body: any, @UserFromAuth() user: JwtUser) {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = body;
-    const generated_signature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET as string)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-      .digest('hex');
-
-    if (generated_signature !== razorpay_signature) {
-      return {
-        success: false,
-        message: 'Signature verification failed',
-      };
-    } else {
-      return { success: true };
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      throw new Error('Missing required parameters for payment verification');
     }
+
+    return this.orderService.updateOrderOnPaymentVerification(
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      user,
+    );
+    
   }
 }

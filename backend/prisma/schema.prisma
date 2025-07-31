@@ -35,6 +35,7 @@ model order {
   status      order_status? @default(payment_pending)
   user        user          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   order_items order_items[]
+  payment     payment[]
 
   @@index([user_id], map: "idx_order_user")
 }
@@ -79,6 +80,15 @@ model user {
   products   products[]
 
   @@index([email], map: "idx_user_email")
+}
+
+model payment {
+  gateway_order_id String  @id
+  order_id         String  @db.Uuid
+  payment_id       String?
+  signature        String?
+  details          Json?
+  order            order   @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum user_type {

@@ -1,15 +1,17 @@
-import {  ForbiddenException,
+import {
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { user_type } from '@prisma/client';
+import { order_status, user_type } from '@prisma/client';
 import { JwtUser } from 'src/decorator/userFromAuth.decorator';
 import { CartDto } from './order.dto';
-import { v4 as uuid } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { RazorpayService } from 'src/razorpay';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class OrderService {
@@ -113,11 +115,23 @@ export class OrderService {
       // Create Razorpay order
       const razorpayOrder = await this.razorpayService.createOrder(totalPrice);
 
-      this.logger.log(`Razorpay order created: ${razorpayOrder.id}`, razorpayOrder);
+      if (!razorpayOrder || !razorpayOrder.id) {
+        throw new HttpException(
+          'Failed to create Razorpay order',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      this.logger.log(
+        `Razorpay order created: ${razorpayOrder.id}`,
+        razorpayOrder,
+      );
+
+      const orderId = uuidv4();
 
       const order = await this.prismaService.order.create({
         data: {
-          id: uuid(),
+          id: orderId,
           user_id: user.sub,
           price: totalPrice,
           order_items: {
@@ -128,6 +142,12 @@ export class OrderService {
               },
             })),
           },
+          payment: {
+            create: {
+              gateway_order_id: razorpayOrder.id,
+              
+            }
+          }
         },
       });
 
@@ -217,5 +237,44 @@ export class OrderService {
         quantity: item.quantity,
       })),
     };
+  }
+
+  async updateOrderOnPaymentVerification(
+    razorpayOrderId: string,
+    razorpayPaymentId: string,
+    razorpaySignature: string,
+    user: JwtUser,
+  ) {
+    const isValid = this.verifyPaymentSignature(
+      razorpayOrderId,
+      razorpayPaymentId,
+      razorpaySignature,
+    );
+
+    if (!isValid) {
+      throw new HttpException(
+        'Invalid payment signature',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.prismaService.order.update({
+      where: { id: razorpayOrderId, user_id: user.sub },
+      data: { status: order_status.order_placed },
+    });
+    return { success: true, message: 'Payment verified successfully' };
+  }
+
+  private verifyPaymentSignature(
+    razorpayOrderId: string,
+    razorpayPaymentId: string,
+    razorpaySignature: string,
+  ): boolean {
+    const generatedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET as string)
+      .update(`${razorpayOrderId}|${razorpayPaymentId}`)
+      .digest('hex');
+
+    return generatedSignature === razorpaySignature;
   }
 }
