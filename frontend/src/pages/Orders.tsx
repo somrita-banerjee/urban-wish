@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getOrders } from "@/features/orders/orders.api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Product {
   id: string;
@@ -52,7 +53,13 @@ export const Orders = () => {
       <h2 className="text-3xl font-bold mb-6 text-center">Your Orders</h2>
 
       {loading ? (
-        <p className="text-gray-500 text-center">Loading orders...</p>
+        <div className="flex items-center space-x-4">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[250px]" />
+            <Skeleton className="h-4 w-[200px]" />
+          </div>
+        </div>
       ) : orders.length === 0 ? (
         <div className="text-center">
           <p className="text-gray-600">You haven’t placed any orders yet.</p>
@@ -82,13 +89,13 @@ export const Orders = () => {
                 <span
                   className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${
                     order.status === "payment_pending"
-                      ? "bg-yellow-100 text-yellow-800"
+                      ? "bg-yellow-200 text-yellow-900"
                       : order.status === "order_placed"
-                      ? "bg-green-100 text-green-800"
+                      ? "bg-green-200 text-green-900 "
                       : order.status === "payment_failed"
-                      ? "bg-red-100 text-red-800"
+                      ? "bg-red-200 text-red-900"
                       : order.status === "order_cancelled"
-                      ? "bg-gray-100 text-gray-800"
+                      ? "bg-gray-200 text-gray-900"
                       : ""
                   }`}
                 >

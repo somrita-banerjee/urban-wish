@@ -1,21 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { addtoCart, getCart } from "@/features/cart/cart.api";
 import { getProducts } from "@/features/product/product.api";
 import { IndianRupeeIcon, Minus, Plus, ShoppingCartIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Product {
+  category_products_categoryTocategory: Category;
   id: string;
   name: string;
   description: string;
   price: string;
   image_url: string;
+  category: string;
 }
 
 interface CartItem {
   product: string;
   quantity: number;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  description?: string; 
 }
 
 export const Home = () => {
@@ -109,64 +118,95 @@ export const Home = () => {
     }
   };
 
+  const groupProductsByCategory = (products: Product[]) => {
+    const grouped: { [category: string]: Product[] } = {};
+    products.forEach((product) => {
+      const categoryName = product.category_products_categoryTocategory?.name;
+      if (!grouped[categoryName]) {
+        grouped[categoryName] = [];
+      }
+      grouped[categoryName].push(product);
+    });
+    return grouped;
+  }
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Available Products</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((product) => {
-          const cartItem = cartItems.find(
-            (item) => item.product === product.id
-          );
+      {Object.entries(groupProductsByCategory(products)).map(
+        ([name, products]) => (
+          <div key={name} className="mb-12">
+            <h2 className="text-2xl font-semibold mb-4 ">{name}</h2>
+            <Carousel className="w-full">
+              <CarouselContent className="ml-2">
+                {products.map((product) => {
+                  const cartItem = cartItems.find(
+                    (item) => item.product === product.id
+                  );
 
-          return (
-            <Card key={product.id} className="shadoww-md">
-              <img
-                src={product.image_url}
-                alt={product.name}
-                className="h-40 w-full object-cover rounded-t-xl"
-              />
-              <CardContent className="p-4">
-                <h2 className="text-lg font-semibold">{product.name}</h2>
-                <p className="text-sm text-gray-500 mb-2">
-                  {product.description}
-                </p>
-                <div className="text-green-600 font-bold mb-2 flex">
-                  <IndianRupeeIcon className="mt-1" size={25} />
-                  <div className="text-3xl">{product.price}</div>
-                  <s className="font-semibold text-sm px-2 flex flex-col-reverse">
-                    {originalPriceSimulator(product.price)}
-                  </s>
-                </div>
-                {cartItem ? (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      className="cursor-pointer"
-                      onClick={() => removeFromCart(product.id)}
+                  return (
+                    <CarouselItem
+                      key={product.id}
+                      className="pl-2 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                     >
-                      <Minus />
-                    </Button>
-                    <span className="font-semibold">{cartItem.quantity}</span>
-                    <Button
-                      className="cursor-pointer"
-                      onClick={() => addToCart(product.id)}
-                    >
-                      <Plus />
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    className="cursor-pointer"
-                    onClick={() => addToCart(product.id)}
-                  >
-                    <ShoppingCartIcon />
-                    Add to Cart
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                      <Card className="h-full flex flex-col shadow-md">
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="h-40 w-full object-cover rounded-t-xl"
+                        />
+                        <CardContent className="p-4 flex flex-col justify-between flex-1">
+                          <div>
+                            <h2 className="text-lg font-semibold">
+                              {product.name}
+                            </h2>
+                            <p className="text-sm text-gray-500 mb-2">
+                              {product.description}
+                            </p>
+                            <div className="text-green-600 font-bold mb-2 flex">
+                              <IndianRupeeIcon className="mt-1" size={25} />
+                              <div className="text-3xl">{product.price}</div>
+                              <s className="font-semibold text-sm px-2 flex flex-col-reverse">
+                                {originalPriceSimulator(product.price)}
+                              </s>
+                            </div>
+                          </div>
+                          <div>
+                            {cartItem ? (
+                              <div className="flex items-center gap-2 mt-2">
+                                <Button onClick={() => removeFromCart(product.id)}>
+                                  <Minus />
+                                </Button>
+                                <span className="font-semibold">
+                                  {cartItem.quantity}
+                                </span>
+                                <Button onClick={() => addToCart(product.id)}>
+                                  <Plus />
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                className="mt-2"
+                                onClick={() => addToCart(product.id)}
+                              >
+                                <ShoppingCartIcon />
+                                Add to Cart
+                              </Button>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
+        )
+      )
+      }
     </div>
   );
-};
+}

@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { placeOrder, verifyPayment } from "@/features/orders/orders.api";
+import { toast} from "sonner";
 
 interface Product {
   id: string;
@@ -118,7 +119,7 @@ export const Cart = () => {
 
   const handlePlaceOrder = async () => {
     if (!window.Razorpay) {
-      alert("Razorpay SDK not loaded. Please try again later.");
+      toast.error("Razorpay SDK not loaded. Please try again later.");
       return;
     }
     if (!cart || cart.items.length === 0) return;
@@ -134,9 +135,9 @@ export const Cart = () => {
         order_id: res.razorpay_order_id,
         handler: function (response: any) {
           console.log(response);
-          alert(
-            `Payment Successful!\nPayment ID: ${response.razorpay_payment_id}`
-          );
+          toast.success("Payment Successful!", {
+            description: `Payment ID: ${response.razorpay_payment_id}`,
+          });
           verifyPayment(
             response.razorpay_payment_id,
             response.razorpay_order_id,
@@ -168,7 +169,13 @@ export const Cart = () => {
         <p className="text-gray-600 mb-4">Your cart is empty.</p>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded"
-          onClick={() => navigate("/")}
+          onClick={() => toast("No items in Cart!!", {
+            description: "Please add items to your cart before proceeding.",
+            action: {
+              label: "Go to main page",
+              onClick: () => navigate("/"),
+            },
+          })}
         >
           Continue Shopping
         </button>
